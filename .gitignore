@@ -1,0 +1,11 @@
+.deps/
+artifacts/
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+*.pdb
+*-test.txt
+port-progress.txt
+ports.json

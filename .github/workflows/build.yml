@@ -1,0 +1,25 @@
+name: Windows build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build self-contained Windows app
+        shell: pwsh
+        run: ./scripts/Build.ps1
+      - name: Run parser and clock calculation checks
+        shell: pwsh
+        run: |
+          $process = Start-Process ./artifacts/win-x64/LJLinkMidiClock.exe -ArgumentList '--self-test' -PassThru -Wait
+          if ($process.ExitCode -ne 0) { throw "Self-test failed: $($process.ExitCode)" }
+          Get-ChildItem $env:TEMP -Filter self-test.txt -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
